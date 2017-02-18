@@ -13,14 +13,34 @@ def main():
     nx = 9                          # Corners in each row
     ny = 6                          # Corners in each column
 
-    # mtx, dist = calibrate_camera(images, img_size, nx, ny)
+    mtx, dist = calibrate_camera(images, img_size, nx, ny)
 
     # undistort_images(images, 'output_images/', mtx, dist)
 
-    img = cv2.imread('test_images/straight_lines1.jpg')
-    img = threshold_image(img)
-    cv2.imshow('img', img)
-    cv2.waitKey(0)
+    images = glob.glob('test_images/*.jpg')
+    for fname in images:
+        img = cv2.imread(fname)
+        img_size = (img.shape[1], img.shape[0])
+
+        img = cv2.undistort(img, mtx, dist, None, mtx)
+
+        img = threshold_image(img)
+
+        src = np.float32([
+            [550,470],
+            [770,470],
+            [1100,660],
+            [220, 660]])
+        offset = 10
+        dst = np.float32([
+            [offset, offset],
+            [img_size[0]-offset, offset],
+            [img_size[0]-offset, img_size[1]-offset],
+            [offset, img_size[1]-offset]])
+        M = cv2.getPerspectiveTransform(src, dst)
+        warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
+        cv2.imshow('img', warped)
+        cv2.waitKey(0)
 
 def calibrate_camera(chessboard_images, img_size, corners_row=9, corners_col=6):
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
@@ -60,7 +80,6 @@ def calibrate_camera(chessboard_images, img_size, corners_row=9, corners_col=6):
 def undistort_images(images, output_dir, mtx, dist):
     for fname in images:
         img = cv2.imread(fname)
-        img_size = (img.shape[1], img.shape[0])
 
         sp = fname.split('\\')
         if len(sp) < 2:
