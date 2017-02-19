@@ -64,8 +64,9 @@ def calibrate_camera(chessboard_images, img_size, corners_row=9, corners_col=6):
             objpoints.append(objp)
             imgpoints.append(corners)
 
-            # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (corners_row,corners_col), corners, ret)
+            if VISUAL_DEBUG == True:
+                # Draw and display the corners
+                img = cv2.drawChessboardCorners(img, (corners_row,corners_col), corners, ret)
 
     cv2.destroyAllWindows()
 
@@ -173,9 +174,10 @@ def find_lanes(binary_warped):
         win_xleft_high = leftx_current + margin
         win_xright_low = rightx_current - margin
         win_xright_high = rightx_current + margin
-        # Draw the windows on the visualization image
-        cv2.rectangle(out_img,(win_xleft_low,win_y_low),(win_xleft_high,win_y_high),(0,255,0), 2) 
-        cv2.rectangle(out_img,(win_xright_low,win_y_low),(win_xright_high,win_y_high),(0,255,0), 2) 
+        if VISUAL_DEBUG == True:
+            # Draw the windows on the visualization image
+            cv2.rectangle(out_img,(win_xleft_low,win_y_low),(win_xleft_high,win_y_high),(0,255,0), 2) 
+            cv2.rectangle(out_img,(win_xright_low,win_y_low),(win_xright_high,win_y_high),(0,255,0), 2) 
         # Identify the nonzero pixels in x and y within the window
         good_left_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xleft_low) & (nonzerox < win_xleft_high)).nonzero()[0]
         good_right_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high) & (nonzerox >= win_xright_low) & (nonzerox < win_xright_high)).nonzero()[0]
